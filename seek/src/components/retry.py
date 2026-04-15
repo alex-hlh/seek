@@ -37,7 +37,5 @@ def retry_with_backoff(func, retry_cfg: "RetryConfig | None" = None):
                 import time
                 time.sleep(cfg.get_delay(attempt))
                 attempt += 1
-                if attempt >= cfg.max_attempts:
-                    raise
 
     return wrapper
