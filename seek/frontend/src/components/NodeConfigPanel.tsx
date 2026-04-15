@@ -96,7 +96,7 @@ interface NodeConfigPanelProps {
 }
 
 const fieldStyle = {
-  width: '100%',
+  width: '100%' as const,
   fontSize: 12,
   padding: '7px 10px',
   border: `1px solid ${tokens.borderDefault}`,
@@ -104,13 +104,14 @@ const fieldStyle = {
   background: tokens.bgElevated,
   color: tokens.textPrimary,
   boxSizing: 'border-box' as const,
-  transition: 'border-color 0.15s',
+  transition: 'border-color 0.15s, box-shadow 0.15s',
+  outline: 'none',
 };
 
 const labelStyle = {
   display: 'block' as const,
   fontSize: 11,
-  fontWeight: 500,
+  fontWeight: 600,
   color: tokens.textSecondary,
   marginBottom: 6,
   letterSpacing: '0.02em',
@@ -119,7 +120,7 @@ const labelStyle = {
 export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProps) {
   if (!node) return null;
 
-  const nodeColors = tokens.nodeColors[node.type as string];
+  const colors = tokens.nodeColors[node.type as string];
   const fields = NODE_CONFIG_FIELDS[node.type as string] ?? [];
   const data = (node.data ?? {}) as Record<string, unknown>;
 
@@ -132,7 +133,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
       flexDirection: 'column',
       overflow: 'hidden',
       flexShrink: 0,
-      boxShadow: tokens.shadowMd,
+      boxShadow: `-${tokens.shadowMd}`,
     }}>
       {/* Header */}
       <div style={{
@@ -144,18 +145,18 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
         background: tokens.bgElevated,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: tokens.sp2 }}>
-          {nodeColors && (
+          {colors && (
             <div style={{
               width: 10,
               height: 10,
               borderRadius: '50%',
-              background: nodeColors.border,
-              boxShadow: `0 0 8px ${nodeColors.border}66`,
+              background: colors.border,
+              boxShadow: `0 0 0 3px ${colors.shadow}`,
               flexShrink: 0,
             }} />
           )}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: nodeColors?.text ?? tokens.textPrimary }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: colors?.text ?? tokens.textPrimary }}>
               {node.type as string}
             </div>
             <div style={{ fontSize: 10, color: tokens.textMuted, marginTop: 1 }}>
@@ -195,7 +196,12 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
       {/* Fields */}
       <div style={{ overflowY: 'auto', flex: 1, padding: tokens.sp3 }}>
         {fields.length === 0 ? (
-          <div style={{ color: tokens.textMuted, fontSize: 12, textAlign: 'center', marginTop: tokens.sp4 }}>
+          <div style={{
+            color: tokens.textMuted,
+            fontSize: 12,
+            textAlign: 'center',
+            marginTop: tokens.sp4,
+          }}>
             此节点无可配置项
           </div>
         ) : (
@@ -233,27 +239,27 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
                       onUpdate(node.id, { ...data, [field.key]: !current });
                     }}
                     style={{
-                      width: 34,
-                      height: 18,
-                      borderRadius: 9,
-                      background: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.bgHover,
+                      width: 36,
+                      height: 20,
+                      borderRadius: 10,
+                      background: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.borderDefault,
                       border: `1px solid ${((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.borderDefault}`,
                       position: 'relative',
                       cursor: 'pointer',
-                      transition: 'background 0.2s',
+                      transition: 'background 0.2s, border-color 0.2s',
                       flexShrink: 0,
                     }}
                   >
                     <div style={{
-                      width: 12,
-                      height: 12,
+                      width: 14,
+                      height: 14,
                       borderRadius: '50%',
                       background: '#fff',
                       position: 'absolute',
                       top: 2,
                       left: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? 18 : 2,
                       transition: 'left 0.2s',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                     }} />
                   </div>
                   <span style={{ fontSize: 12, color: tokens.textSecondary }}>
@@ -292,6 +298,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        background: tokens.bgElevated,
       }}>
         <span style={{ fontSize: 10, color: tokens.textMuted }}>
           {fields.length > 0 ? `${fields.length} 个配置项` : '只读节点'}
@@ -301,7 +308,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
           height: 6,
           borderRadius: '50%',
           background: tokens.success,
-          opacity: 0.6,
+          opacity: 0.7,
         }} />
       </div>
     </aside>

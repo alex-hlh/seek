@@ -19,10 +19,10 @@ let nodeCounter = 1;
 type RunStatus = 'idle' | 'running' | 'done' | 'error';
 
 const statusConfig = {
-  idle:    { color: tokens.textMuted,  label: '就绪' },
-  running: { color: tokens.accent,      label: '运行中' },
-  done:    { color: tokens.success,    label: '已完成' },
-  error:   { color: tokens.error,       label: '出错' },
+  idle:    { color: tokens.textMuted,   label: '就绪' },
+  running:  { color: tokens.accent,     label: '运行中' },
+  done:    { color: tokens.success,     label: '已完成' },
+  error:   { color: tokens.error,      label: '出错' },
 };
 
 export default function App() {
@@ -159,17 +159,19 @@ export default function App() {
     background: tokens.bgElevated,
     color: tokens.textPrimary,
     cursor: 'pointer',
-    transition: 'background 0.15s, border-color 0.15s',
+    transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
     display: 'flex',
     alignItems: 'center',
     gap: 6,
+    boxShadow: tokens.shadowSm,
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: tokens.bgApp }}>
+
       {/* ── Toolbar ─────────────────────────────────────── */}
       <header style={{
-        height: 48,
+        height: 52,
         borderBottom: `1px solid ${tokens.borderDefault}`,
         background: tokens.bgSurface,
         display: 'flex',
@@ -181,17 +183,17 @@ export default function App() {
       }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke={tokens.accent} strokeWidth="1.5"/>
             <path d="M8 12h8M12 8v8" stroke={tokens.accent} strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          <span style={{ fontWeight: 700, fontSize: 15, color: tokens.textPrimary, letterSpacing: '-0.02em' }}>
+          <span style={{ fontWeight: 700, fontSize: 16, color: tokens.textPrimary, letterSpacing: '-0.02em' }}>
             Seek
           </span>
         </div>
 
         {/* Divider */}
-        <div style={{ width: 1, height: 20, background: tokens.borderDefault }} />
+        <div style={{ width: 1, height: 22, background: tokens.borderDefault, margin: '0 4px' }} />
 
         {/* Workflow name */}
         <input
@@ -205,7 +207,11 @@ export default function App() {
             fontWeight: 500,
             outline: 'none',
             width: 160,
+            borderBottom: `1px solid transparent`,
+            transition: 'border-color 0.15s',
           }}
+          onFocus={(e) => { (e.target as HTMLInputElement).style.borderBottomColor = tokens.borderFocus; }}
+          onBlur={(e) => { (e.target as HTMLInputElement).style.borderBottomColor = 'transparent'; }}
         />
 
         {/* Spacer */}
@@ -216,14 +222,14 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          padding: '3px 10px',
+          padding: '4px 12px',
           borderRadius: 20,
-          background: `${statusConfig[runStatus].color}15`,
-          border: `1px solid ${statusConfig[runStatus].color}40`,
+          background: `${statusConfig[runStatus].color}14`,
+          border: `1px solid ${statusConfig[runStatus].color}30`,
         }}>
           <div style={{
-            width: 6,
-            height: 6,
+            width: 7,
+            height: 7,
             borderRadius: '50%',
             background: statusConfig[runStatus].color,
             animation: runStatus === 'running' ? 'pulse 1.2s ease-in-out infinite' : 'none',
@@ -233,12 +239,20 @@ export default function App() {
           </span>
         </div>
 
-        {/* Actions */}
+        {/* Action buttons */}
         <button
           onClick={handleLoad}
           style={btnBase}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderFocus; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderDefault; }}
+          onMouseEnter={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = tokens.borderFocus;
+            b.style.boxShadow = tokens.shadowMd;
+          }}
+          onMouseLeave={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = tokens.borderDefault;
+            b.style.boxShadow = tokens.shadowSm;
+          }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
@@ -249,8 +263,16 @@ export default function App() {
         <button
           onClick={handleSave}
           style={btnBase}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderFocus; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderDefault; }}
+          onMouseEnter={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = tokens.borderFocus;
+            b.style.boxShadow = tokens.shadowMd;
+          }}
+          onMouseLeave={(e) => {
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = tokens.borderDefault;
+            b.style.boxShadow = tokens.shadowSm;
+          }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
@@ -270,10 +292,16 @@ export default function App() {
             cursor: runStatus === 'running' ? 'not-allowed' : 'pointer',
           }}
           onMouseEnter={(e) => {
-            if (runStatus !== 'running') (e.currentTarget as HTMLButtonElement).style.background = tokens.accentHover;
+            if (runStatus !== 'running') {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = tokens.accentHover;
+            }
           }}
           onMouseLeave={(e) => {
-            if (runStatus !== 'running') (e.currentTarget as HTMLButtonElement).style.background = tokens.accent;
+            if (runStatus !== 'running') {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = tokens.accent;
+            }
           }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
@@ -307,9 +335,9 @@ export default function App() {
         )}
       </div>
 
-      {/* ── Status bar ──────────────────────────────────── */}
+      {/* ── Footer ────────────────────────────────────────── */}
       <footer style={{
-        height: 24,
+        height: 26,
         borderTop: `1px solid ${tokens.borderDefault}`,
         background: tokens.bgSurface,
         display: 'flex',
@@ -331,11 +359,10 @@ export default function App() {
         <span style={{ fontSize: 10, color: tokens.textMuted }}>Seek Crawler v0.1</span>
       </footer>
 
-      {/* Pulse keyframes */}
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+          50% { opacity: 0.35; }
         }
       `}</style>
     </div>

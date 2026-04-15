@@ -2,7 +2,6 @@ import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -47,34 +46,25 @@ export function FlowEditor({
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         fitView
-        style={{ background: '#0d1117' }}
+        style={{ background: '#f5f3ef' }}
         defaultEdgeOptions={{
-          style: { stroke: '#30363d', strokeWidth: 1.5 },
+          style: { stroke: '#c4bdb5', strokeWidth: 2 },
           animated: false,
         }}
       >
+        {/* Paper-like dot grid */}
         <Background
-          color="#21262d"
+          color="#ddd8d0"
           gap={20}
-          size={1}
+          size={1.5}
         />
+
         <Controls
           style={{
-            background: '#161b22',
-            border: '1px solid #30363d',
-            borderRadius: 6,
-          }}
-        />
-        <MiniMap
-          nodeColor={(node) => {
-            const colors = (window as any).__seekNodeColors?.[node.type as string];
-            return colors?.border ?? '#30363d';
-          }}
-          maskColor="rgba(13, 17, 23, 0.8)"
-          style={{
-            background: '#161b22',
-            border: '1px solid #30363d',
-            borderRadius: 6,
+            background: '#ffffff',
+            border: '1px solid #e0dbd4',
+            borderRadius: 8,
+            boxShadow: '0 2px 8px rgba(60,50,40,0.08)',
           }}
         />
       </ReactFlow>
@@ -91,18 +81,18 @@ export function FlowEditor({
           pointerEvents: 'none',
           gap: 12,
         }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#30363d" strokeWidth="1">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#d4cfc8" strokeWidth="1">
             <rect x="3" y="3" width="7" height="7" rx="1"/>
             <rect x="14" y="3" width="7" height="7" rx="1"/>
             <rect x="3" y="14" width="7" height="7" rx="1"/>
-            <path d="M14 17.5h7M17.5 14v7"/>
+            <path d="M14 17.5h7M17.5 14v7" strokeLinecap="round"/>
           </svg>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 14, fontWeight: 500, color: '#30363d', marginBottom: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#b0a898', marginBottom: 4 }}>
               从左侧拖拽节点开始
             </div>
-            <div style={{ fontSize: 12, color: '#21262d' }}>
-              或双击画布快速添加
+            <div style={{ fontSize: 12, color: '#ccc5ba' }}>
+              连接节点构建爬取流程
             </div>
           </div>
         </div>
