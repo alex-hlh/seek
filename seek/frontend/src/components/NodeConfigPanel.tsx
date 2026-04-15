@@ -1,3 +1,4 @@
+import { tokens } from '../styles/theme';
 import type { Node } from '@xyflow/react';
 
 interface FieldDef {
@@ -25,7 +26,7 @@ const NODE_CONFIG_FIELDS: Record<string, FieldDef[]> = {
     { key: 'url', label: '接口URL', type: 'text', placeholder: 'https://api.example.com/data' },
     { key: 'method', label: '请求方法', type: 'select', options: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], defaultValue: 'GET' },
     { key: 'auth_type', label: '认证类型', type: 'select', options: ['none', 'bearer', 'basic'], defaultValue: 'none' },
-    { key: 'auth_token', label: 'Token/密码', type: 'text', placeholder: 'your-token-or-password' },
+    { key: 'auth_token', label: 'Token / 密码', type: 'text', placeholder: 'your-token-or-password' },
     { key: 'auth_username', label: '用户名 (Basic Auth)', type: 'text', placeholder: 'username' },
     { key: 'params', label: '查询参数 (JSON)', type: 'textarea', placeholder: '{"page": 1, "size": 20}' },
     { key: 'result_key', label: '结果存储键', type: 'text', placeholder: 'api_response' },
@@ -65,7 +66,7 @@ const NODE_CONFIG_FIELDS: Record<string, FieldDef[]> = {
   ],
   '正则清洗': [
     { key: 'source_key', label: '数据键', type: 'text', placeholder: 'parsed_data' },
-    { key: 'rules', label: '清洗规则 (JSON数组)', type: 'textarea', placeholder: '[{"field": "price", "pattern": "[^\\d.]", "replace": ""}]' },
+    { key: 'rules', label: '清洗规则 (JSON数组)', type: 'textarea', placeholder: '[{"field": "price", "pattern": "[^\\\\d.]", "replace": ""}]' },
     { key: 'result_key', label: '结果存储键', type: 'text', placeholder: 'cleaned_data' },
   ],
   '字段映射': [
@@ -94,139 +95,214 @@ interface NodeConfigPanelProps {
   onClose: () => void;
 }
 
+const fieldStyle = {
+  width: '100%',
+  fontSize: 12,
+  padding: '7px 10px',
+  border: `1px solid ${tokens.borderDefault}`,
+  borderRadius: tokens.radiusMd,
+  background: tokens.bgElevated,
+  color: tokens.textPrimary,
+  boxSizing: 'border-box' as const,
+  transition: 'border-color 0.15s',
+};
+
+const labelStyle = {
+  display: 'block' as const,
+  fontSize: 11,
+  fontWeight: 500,
+  color: tokens.textSecondary,
+  marginBottom: 6,
+  letterSpacing: '0.02em',
+};
+
 export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProps) {
   if (!node) return null;
 
-  const currentNode = node;
-  const fields = NODE_CONFIG_FIELDS[currentNode.type as string] ?? [];
-  const data = (currentNode.data ?? {}) as Record<string, unknown>;
-
-  function handleChange(key: string, value: unknown) {
-    onUpdate(currentNode.id, { ...data, [key]: value });
-  }
+  const nodeColors = tokens.nodeColors[node.type as string];
+  const fields = NODE_CONFIG_FIELDS[node.type as string] ?? [];
+  const data = (node.data ?? {}) as Record<string, unknown>;
 
   return (
     <aside style={{
-      width: 280,
-      borderLeft: '1px solid #e0e0e0',
-      background: '#fff',
+      width: 292,
+      background: tokens.bgSurface,
+      borderLeft: `1px solid ${tokens.borderDefault}`,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
+      flexShrink: 0,
+      boxShadow: tokens.shadowMd,
     }}>
+      {/* Header */}
       <div style={{
-        padding: '12px 16px',
-        borderBottom: '1px solid #e0e0e0',
+        padding: `${tokens.sp2}px ${tokens.sp3}px`,
+        borderBottom: `1px solid ${tokens.borderDefault}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        background: tokens.bgElevated,
       }}>
-        <div>
-          <div style={{ fontWeight: 600, fontSize: 14, color: '#222' }}>{node.type as string}</div>
-          <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>节点 {node.id}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: tokens.sp2 }}>
+          {nodeColors && (
+            <div style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              background: nodeColors.border,
+              boxShadow: `0 0 8px ${nodeColors.border}66`,
+              flexShrink: 0,
+            }} />
+          )}
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: nodeColors?.text ?? tokens.textPrimary }}>
+              {node.type as string}
+            </div>
+            <div style={{ fontSize: 10, color: tokens.textMuted, marginTop: 1 }}>
+              节点 #{node.id}
+            </div>
+          </div>
         </div>
         <button
           onClick={onClose}
           style={{
-            background: 'none',
-            border: 'none',
-            fontSize: 18,
+            width: 26,
+            height: 26,
+            borderRadius: tokens.radiusMd,
+            border: `1px solid ${tokens.borderDefault}`,
+            background: 'transparent',
+            color: tokens.textSecondary,
             cursor: 'pointer',
-            color: '#666',
-            padding: '0 4px',
-            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 16,
+            transition: 'background 0.15s, color 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = tokens.bgHover;
+            (e.currentTarget as HTMLButtonElement).style.color = tokens.textPrimary;
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            (e.currentTarget as HTMLButtonElement).style.color = tokens.textSecondary;
           }}
         >
           ×
         </button>
       </div>
 
-      <div style={{ overflowY: 'auto', flex: 1, padding: '12px 16px' }}>
+      {/* Fields */}
+      <div style={{ overflowY: 'auto', flex: 1, padding: tokens.sp3 }}>
         {fields.length === 0 ? (
-          <div style={{ color: '#aaa', fontSize: 13 }}>此节点无可配置项</div>
+          <div style={{ color: tokens.textMuted, fontSize: 12, textAlign: 'center', marginTop: tokens.sp4 }}>
+            此节点无可配置项
+          </div>
         ) : (
           fields.map((field) => (
-            <div key={field.key} style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 500, color: '#444', marginBottom: 4 }}>
-                {field.label}
-              </label>
-              {field.type === 'textarea' ? (
+            <div key={field.key} style={{ marginBottom: tokens.sp3 }}>
+              <label style={labelStyle}>{field.label}</label>
+
+              {field.type === 'textarea' && (
                 <textarea
                   value={(data[field.key] as string) ?? ''}
                   placeholder={field.placeholder}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    padding: '6px 8px',
-                    border: '1px solid #ddd',
-                    borderRadius: 4,
-                    resize: 'vertical',
-                    fontFamily: 'monospace',
-                    boxSizing: 'border-box',
-                  }}
+                  rows={3}
+                  onChange={(e) => onUpdate(node.id, { ...data, [field.key]: e.target.value })}
+                  style={{ ...fieldStyle, resize: 'vertical', fontFamily: tokens.fontMono }}
                 />
-              ) : field.type === 'select' ? (
+              )}
+
+              {field.type === 'select' && (
                 <select
                   value={(data[field.key] as string) ?? (field.defaultValue as string ?? '')}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    padding: '6px 8px',
-                    border: '1px solid #ddd',
-                    borderRadius: 4,
-                    background: '#fff',
-                    boxSizing: 'border-box',
-                  }}
+                  onChange={(e) => onUpdate(node.id, { ...data, [field.key]: e.target.value })}
+                  style={fieldStyle}
                 >
                   {field.options?.map((opt) => (
                     <option key={opt} value={opt}>{opt}</option>
                   ))}
                 </select>
-              ) : field.type === 'checkbox' ? (
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={(data[field.key] as boolean) ?? (field.defaultValue as boolean ?? false)}
-                    onChange={(e) => handleChange(field.key, e.target.checked)}
-                  />
-                  <span style={{ fontSize: 12, color: '#555' }}>启用</span>
+              )}
+
+              {field.type === 'checkbox' && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', paddingTop: 2 }}>
+                  <div
+                    onClick={() => {
+                      const current = (data[field.key] as boolean) ?? (field.defaultValue as boolean ?? false);
+                      onUpdate(node.id, { ...data, [field.key]: !current });
+                    }}
+                    style={{
+                      width: 34,
+                      height: 18,
+                      borderRadius: 9,
+                      background: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.bgHover,
+                      border: `1px solid ${((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.borderDefault}`,
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <div style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: '#fff',
+                      position: 'absolute',
+                      top: 2,
+                      left: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? 18 : 2,
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                    }} />
+                  </div>
+                  <span style={{ fontSize: 12, color: tokens.textSecondary }}>
+                    {((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? '已启用' : '未启用'}
+                  </span>
                 </label>
-              ) : field.type === 'number' ? (
+              )}
+
+              {field.type === 'number' && (
                 <input
                   type="number"
                   value={(data[field.key] as number) ?? (field.defaultValue as number ?? 0)}
-                  onChange={(e) => handleChange(field.key, Number(e.target.value))}
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    padding: '6px 8px',
-                    border: '1px solid #ddd',
-                    borderRadius: 4,
-                    boxSizing: 'border-box',
-                  }}
+                  onChange={(e) => onUpdate(node.id, { ...data, [field.key]: Number(e.target.value) })}
+                  style={fieldStyle}
                 />
-              ) : (
+              )}
+
+              {field.type === 'text' && (
                 <input
                   type="text"
                   value={(data[field.key] as string) ?? ''}
                   placeholder={field.placeholder}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  style={{
-                    width: '100%',
-                    fontSize: 12,
-                    padding: '6px 8px',
-                    border: '1px solid #ddd',
-                    borderRadius: 4,
-                    boxSizing: 'border-box',
-                  }}
+                  onChange={(e) => onUpdate(node.id, { ...data, [field.key]: e.target.value })}
+                  style={fieldStyle}
                 />
               )}
             </div>
           ))
         )}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        padding: `${tokens.sp1}px ${tokens.sp3}px`,
+        borderTop: `1px solid ${tokens.borderMuted}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <span style={{ fontSize: 10, color: tokens.textMuted }}>
+          {fields.length > 0 ? `${fields.length} 个配置项` : '只读节点'}
+        </span>
+        <div style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: tokens.success,
+          opacity: 0.6,
+        }} />
       </div>
     </aside>
   );

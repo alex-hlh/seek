@@ -9,6 +9,7 @@ import {
   type NodeMouseHandler,
 } from '@xyflow/react';
 import axios from 'axios';
+import { tokens } from './styles/theme';
 import { FlowEditor } from './components/FlowEditor';
 import { NodePalette } from './components/NodePalette';
 import { NodeConfigPanel } from './components/NodeConfigPanel';
@@ -17,6 +18,13 @@ let nodeCounter = 1;
 
 type RunStatus = 'idle' | 'running' | 'done' | 'error';
 
+const statusConfig = {
+  idle:    { color: tokens.textMuted,  label: '就绪' },
+  running: { color: tokens.accent,      label: '运行中' },
+  done:    { color: tokens.success,    label: '已完成' },
+  error:   { color: tokens.error,       label: '出错' },
+};
+
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -24,6 +32,7 @@ export default function App() {
   const [workflowId, setWorkflowId] = useState<string | null>(null);
   const [runStatus, setRunStatus] = useState<RunStatus>('idle');
   const [runMessage, setRunMessage] = useState('');
+  const [workflowName, setWorkflowName] = useState('未命名工作流');
   const dragTypeRef = useRef<string | null>(null);
 
   const onConnect: OnConnect = useCallback(
@@ -79,7 +88,7 @@ export default function App() {
 
   async function handleSave() {
     const workflow = {
-      name: 'Workflow',
+      name: workflowName,
       nodes: nodes.map((n) => ({
         id: n.id,
         type: (n.data.nodeType as string) ?? n.id,
@@ -98,6 +107,7 @@ export default function App() {
     const wf = await axios.get(`/api/workflows/${res.data[0].id}`);
     const data = wf.data;
     setWorkflowId(data.id);
+    setWorkflowName(data.name ?? '未命名工作流');
     setNodes(
       (data.nodes ?? []).map((n: any) => ({
         id: n.id,
@@ -140,48 +150,143 @@ export default function App() {
     };
   }
 
-  const statusColor: Record<RunStatus, string> = {
-    idle: '#666',
-    running: '#1976D2',
-    done: '#2E7D32',
-    error: '#C62828',
+  const btnBase: React.CSSProperties = {
+    padding: '6px 14px',
+    fontSize: 12,
+    fontWeight: 500,
+    borderRadius: tokens.radiusMd,
+    border: `1px solid ${tokens.borderDefault}`,
+    background: tokens.bgElevated,
+    color: tokens.textPrimary,
+    cursor: 'pointer',
+    transition: 'background 0.15s, border-color 0.15s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      {/* Toolbar */}
-      <div style={{
-        padding: '8px 16px',
-        borderBottom: '1px solid #e0e0e0',
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: tokens.bgApp }}>
+      {/* ── Toolbar ─────────────────────────────────────── */}
+      <header style={{
+        height: 48,
+        borderBottom: `1px solid ${tokens.borderDefault}`,
+        background: tokens.bgSurface,
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
-        background: '#fff',
+        padding: `0 ${tokens.sp3}px`,
+        gap: tokens.sp2,
         flexShrink: 0,
+        boxShadow: tokens.shadowSm,
       }}>
-        <span style={{ fontWeight: 700, fontSize: 16, color: '#222', marginRight: 8 }}>Seek</span>
-        <button onClick={handleSave} style={btnStyle}>保存</button>
-        <button onClick={handleLoad} style={btnStyle}>加载</button>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke={tokens.accent} strokeWidth="1.5"/>
+            <path d="M8 12h8M12 8v8" stroke={tokens.accent} strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontWeight: 700, fontSize: 15, color: tokens.textPrimary, letterSpacing: '-0.02em' }}>
+            Seek
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, background: tokens.borderDefault }} />
+
+        {/* Workflow name */}
+        <input
+          value={workflowName}
+          onChange={(e) => setWorkflowName(e.target.value)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: tokens.textSecondary,
+            fontSize: 13,
+            fontWeight: 500,
+            outline: 'none',
+            width: 160,
+          }}
+        />
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Status pill */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '3px 10px',
+          borderRadius: 20,
+          background: `${statusConfig[runStatus].color}15`,
+          border: `1px solid ${statusConfig[runStatus].color}40`,
+        }}>
+          <div style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            background: statusConfig[runStatus].color,
+            animation: runStatus === 'running' ? 'pulse 1.2s ease-in-out infinite' : 'none',
+          }} />
+          <span style={{ fontSize: 11, fontWeight: 500, color: statusConfig[runStatus].color }}>
+            {runMessage || statusConfig[runStatus].label}
+          </span>
+        </div>
+
+        {/* Actions */}
+        <button
+          onClick={handleLoad}
+          style={btnBase}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderFocus; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderDefault; }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          加载
+        </button>
+
+        <button
+          onClick={handleSave}
+          style={btnBase}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderFocus; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = tokens.borderDefault; }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+          </svg>
+          保存
+        </button>
+
         <button
           onClick={handleRun}
           disabled={runStatus === 'running'}
-          style={{ ...btnStyle, background: '#1976D2', color: '#fff' }}
+          style={{
+            ...btnBase,
+            background: runStatus === 'running' ? tokens.bgHover : tokens.accent,
+            borderColor: runStatus === 'running' ? tokens.borderDefault : tokens.accent,
+            color: runStatus === 'running' ? tokens.textMuted : '#fff',
+            cursor: runStatus === 'running' ? 'not-allowed' : 'pointer',
+          }}
+          onMouseEnter={(e) => {
+            if (runStatus !== 'running') (e.currentTarget as HTMLButtonElement).style.background = tokens.accentHover;
+          }}
+          onMouseLeave={(e) => {
+            if (runStatus !== 'running') (e.currentTarget as HTMLButtonElement).style.background = tokens.accent;
+          }}
         >
-          {runStatus === 'running' ? '运行中...' : '▶ 运行'}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {runStatus === 'running' ? '运行中...' : '运行'}
         </button>
-        {workflowId && (
-          <span style={{ fontSize: 12, color: '#888' }}>ID: {workflowId}</span>
-        )}
-        {runMessage && (
-          <span style={{ fontSize: 12, color: statusColor[runStatus], marginLeft: 8 }}>
-            {runMessage}
-          </span>
-        )}
-      </div>
+      </header>
 
-      {/* Main layout */}
+      {/* ── Main ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <NodePalette onDragStart={handleDragStart} />
+
         <FlowEditor
           nodes={nodes}
           edges={edges}
@@ -192,6 +297,7 @@ export default function App() {
           onDragOver={handleDragOver}
           onNodeClick={onNodeClick}
         />
+
         {selectedNode && (
           <NodeConfigPanel
             node={selectedNode}
@@ -200,15 +306,38 @@ export default function App() {
           />
         )}
       </div>
+
+      {/* ── Status bar ──────────────────────────────────── */}
+      <footer style={{
+        height: 24,
+        borderTop: `1px solid ${tokens.borderDefault}`,
+        background: tokens.bgSurface,
+        display: 'flex',
+        alignItems: 'center',
+        padding: `0 ${tokens.sp2}px`,
+        gap: tokens.sp3,
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: 10, color: tokens.textMuted }}>
+          {nodes.length} 个节点 · {edges.length} 条连接
+        </span>
+        {workflowId && (
+          <>
+            <div style={{ width: 3, height: 3, borderRadius: '50%', background: tokens.borderDefault }} />
+            <span style={{ fontSize: 10, color: tokens.textMuted }}>ID: {workflowId}</span>
+          </>
+        )}
+        <div style={{ flex: 1 }} />
+        <span style={{ fontSize: 10, color: tokens.textMuted }}>Seek Crawler v0.1</span>
+      </footer>
+
+      {/* Pulse keyframes */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
     </div>
   );
 }
-
-const btnStyle: React.CSSProperties = {
-  padding: '6px 14px',
-  fontSize: 13,
-  border: '1px solid #ddd',
-  borderRadius: 4,
-  background: '#f5f5f5',
-  cursor: 'pointer',
-};
