@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.omc/
+.claude/
+*.pyc
+__pycache__/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+workflows/
+outputs/
