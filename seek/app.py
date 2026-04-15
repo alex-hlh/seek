@@ -1,3 +1,4 @@
+from __future__ import annotations
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -6,9 +7,6 @@ import json
 import asyncio
 from typing import Any
 
-from seek.src.config import WORKFLOWS_DIR, OUTPUTS_DIR, LOGS_DIR
-from seek.src.storage import WorkflowStorage
-from seek.src.engine import WorkflowEngine
 from seek.src.nodes.start_url import StartUrlNode
 from seek.src.nodes.http_request import HttpRequestNode
 from seek.src.nodes.api_request import ApiRequestNode
@@ -22,6 +20,9 @@ from seek.src.nodes.field_mapping import FieldMappingNode
 from seek.src.nodes.save_to_file import SaveToFileNode
 from seek.src.nodes.human_verify import HumanVerifyNode
 from seek.src.components.diag import DiagLogger
+from seek.src.storage import WorkflowStorage
+from seek.src.engine import WorkflowEngine
+from seek.src.config import WORKFLOWS_DIR, OUTPUTS_DIR, LOGS_DIR
 
 app = FastAPI(title="Seek Crawler")
 
@@ -45,7 +46,8 @@ storage = WorkflowStorage(WORKFLOWS_DIR)
 
 @app.get("/")
 async def root():
-    return FileResponse("frontend/dist/index.html")
+    dist_index = Path(__file__).parent / "frontend" / "dist" / "index.html"
+    return FileResponse(dist_index)
 
 
 @app.get("/api/workflows")

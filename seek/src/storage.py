@@ -1,12 +1,13 @@
+from __future__ import annotations
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Optional
 
 
 class WorkflowStorage:
     """Persist and retrieve workflow JSON files."""
 
-    def __init__(self, workflows_dir: Path | str):
+    def __init__(self, workflows_dir: Union[Path, str]):
         self.dir = Path(workflows_dir)
         self.dir.mkdir(parents=True, exist_ok=True)
 
@@ -33,7 +34,7 @@ class WorkflowStorage:
         path.write_text(json.dumps(workflow, ensure_ascii=False, indent=2))
         return workflow
 
-    def load_workflow(self, workflow_id: str) -> dict[str, Any] | None:
+    def load_workflow(self, workflow_id: str) -> Optional[dict[str, Any]]:
         path = self.dir / f"{workflow_id}.json"
         if not path.exists():
             return None

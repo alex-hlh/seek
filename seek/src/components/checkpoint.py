@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 import threading
 from pathlib import Path
@@ -12,12 +13,12 @@ class CheckpointManager:
         self.state_file = self.dir / "progress.json"
         self.done_file = self.dir / "done_ids.txt"
         self._lock = threading.Lock()
-        self._done_ids: set[str] | None = None
+        self._done_ids = None
 
     def _ensure_dir(self):
         self.dir.mkdir(parents=True, exist_ok=True)
 
-    def _load_done_ids(self) -> set[str]:
+    def _load_done_ids(self) -> set:
         if self._done_ids is not None:
             return self._done_ids
         self._ensure_dir()
@@ -39,7 +40,7 @@ class CheckpointManager:
                 self.done_file.write_text("\n".join(sorted(done_ids)) + "\n")
                 self._done_ids = done_ids
 
-    def mark_batch_done(self, ids: list[str]):
+    def mark_batch_done(self, ids: list):
         for id_ in ids:
             self.mark_done(id_)
 

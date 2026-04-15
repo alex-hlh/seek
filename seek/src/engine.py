@@ -1,3 +1,4 @@
+from __future__ import annotations
 from collections import defaultdict, deque
 from typing import Any
 from seek.src.nodes.base import NodeBase, NodeExecutionContext
@@ -29,7 +30,7 @@ def topological_sort(nodes: list[str], edges: list[tuple[str, str]]) -> list[str
 class WorkflowEngine:
     """Executes a workflow: loads nodes, topologically sorts, runs each node."""
 
-    def __init__(self, workflow: dict[str, Any], node_registry: dict[str, type[NodeBase]]):
+    def __init__(self, workflow: dict[str, Any], node_registry: dict[str, type]):
         self.workflow = workflow
         self.node_registry = node_registry
         self.ctx = NodeExecutionContext(workflow_id=workflow["id"])
