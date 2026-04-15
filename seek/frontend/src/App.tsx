@@ -21,7 +21,7 @@ type RunStatus = 'idle' | 'running' | 'done' | 'error';
 const statusConfig = {
   idle:    { color: tokens.textMuted,   label: '就绪' },
   running:  { color: tokens.accent,     label: '运行中' },
-  done:    { color: tokens.success,     label: '已完成' },
+  done:    { color: tokens.success,    label: '已完成' },
   error:   { color: tokens.error,      label: '出错' },
 };
 
@@ -150,20 +150,31 @@ export default function App() {
     };
   }
 
-  const btnBase: React.CSSProperties = {
-    padding: '6px 14px',
-    fontSize: 12,
-    fontWeight: 500,
-    borderRadius: tokens.radiusMd,
+  // Spotify-style pill button
+  const pillBtn: React.CSSProperties = {
+    padding: '7px 20px',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '1.4px',
+    textTransform: 'uppercase' as const,
+    borderRadius: tokens.radiusPill,
     border: `1px solid ${tokens.borderDefault}`,
     background: tokens.bgElevated,
     color: tokens.textPrimary,
     cursor: 'pointer',
-    transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
+    transition: 'background 0.15s, box-shadow 0.15s',
     display: 'flex',
     alignItems: 'center',
     gap: 6,
-    boxShadow: tokens.shadowSm,
+  };
+
+  // Spotify-style green play/run button
+  const runBtn: React.CSSProperties = {
+    ...pillBtn,
+    background: tokens.accent,
+    borderColor: tokens.accent,
+    color: '#000000',
+    fontWeight: 700,
   };
 
   return (
@@ -172,30 +183,30 @@ export default function App() {
       {/* ── Toolbar ─────────────────────────────────────── */}
       <header style={{
         height: 52,
-        borderBottom: `1px solid ${tokens.borderDefault}`,
+        borderBottom: `1px solid ${tokens.borderMuted}`,
         background: tokens.bgSurface,
         display: 'flex',
         alignItems: 'center',
         padding: `0 ${tokens.sp3}px`,
         gap: tokens.sp2,
         flexShrink: 0,
-        boxShadow: tokens.shadowSm,
+        boxShadow: tokens.shadowMd,
       }}>
-        {/* Logo */}
+        {/* Logo — Spotify green */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke={tokens.accent} strokeWidth="1.5"/>
             <path d="M8 12h8M12 8v8" stroke={tokens.accent} strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          <span style={{ fontWeight: 700, fontSize: 16, color: tokens.textPrimary, letterSpacing: '-0.02em' }}>
+          <span style={{ fontWeight: 700, fontSize: 16, color: tokens.textPrimary, letterSpacing: '-0.01em' }}>
             Seek
           </span>
         </div>
 
         {/* Divider */}
-        <div style={{ width: 1, height: 22, background: tokens.borderDefault, margin: '0 4px' }} />
+        <div style={{ width: 1, height: 22, background: tokens.borderMuted, margin: '0 4px' }} />
 
-        {/* Workflow name */}
+        {/* Workflow name — subtle underline edit */}
         <input
           value={workflowName}
           onChange={(e) => setWorkflowName(e.target.value)}
@@ -210,7 +221,7 @@ export default function App() {
             borderBottom: `1px solid transparent`,
             transition: 'border-color 0.15s',
           }}
-          onFocus={(e) => { (e.target as HTMLInputElement).style.borderBottomColor = tokens.borderFocus; }}
+          onFocus={(e) => { (e.target as HTMLInputElement).style.borderBottomColor = tokens.accent; }}
           onBlur={(e) => { (e.target as HTMLInputElement).style.borderBottomColor = 'transparent'; }}
         />
 
@@ -222,10 +233,10 @@ export default function App() {
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          padding: '4px 12px',
-          borderRadius: 20,
-          background: `${statusConfig[runStatus].color}14`,
-          border: `1px solid ${statusConfig[runStatus].color}30`,
+          padding: '5px 14px',
+          borderRadius: tokens.radiusPill,
+          background: `${statusConfig[runStatus].color}18`,
+          border: `1px solid ${statusConfig[runStatus].color}40`,
         }}>
           <div style={{
             width: 7,
@@ -234,61 +245,61 @@ export default function App() {
             background: statusConfig[runStatus].color,
             animation: runStatus === 'running' ? 'pulse 1.2s ease-in-out infinite' : 'none',
           }} />
-          <span style={{ fontSize: 11, fontWeight: 500, color: statusConfig[runStatus].color }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: statusConfig[runStatus].color, letterSpacing: '0.5px' }}>
             {runMessage || statusConfig[runStatus].label}
           </span>
         </div>
 
-        {/* Action buttons */}
+        {/* Load button */}
         <button
           onClick={handleLoad}
-          style={btnBase}
+          style={pillBtn}
           onMouseEnter={(e) => {
             const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = tokens.borderFocus;
+            b.style.background = tokens.bgHover;
             b.style.boxShadow = tokens.shadowMd;
           }}
           onMouseLeave={(e) => {
             const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = tokens.borderDefault;
-            b.style.boxShadow = tokens.shadowSm;
+            b.style.background = tokens.bgElevated;
+            b.style.boxShadow = 'none';
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
           </svg>
           加载
         </button>
 
+        {/* Save button */}
         <button
           onClick={handleSave}
-          style={btnBase}
+          style={pillBtn}
           onMouseEnter={(e) => {
             const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = tokens.borderFocus;
+            b.style.background = tokens.bgHover;
             b.style.boxShadow = tokens.shadowMd;
           }}
           onMouseLeave={(e) => {
             const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = tokens.borderDefault;
-            b.style.boxShadow = tokens.shadowSm;
+            b.style.background = tokens.bgElevated;
+            b.style.boxShadow = 'none';
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
             <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
           </svg>
           保存
         </button>
 
+        {/* Run button — green pill */}
         <button
           onClick={handleRun}
           disabled={runStatus === 'running'}
           style={{
-            ...btnBase,
-            background: runStatus === 'running' ? tokens.bgHover : tokens.accent,
-            borderColor: runStatus === 'running' ? tokens.borderDefault : tokens.accent,
-            color: runStatus === 'running' ? tokens.textMuted : '#fff',
+            ...runBtn,
+            opacity: runStatus === 'running' ? 0.6 : 1,
             cursor: runStatus === 'running' ? 'not-allowed' : 'pointer',
           }}
           onMouseEnter={(e) => {
@@ -304,7 +315,7 @@ export default function App() {
             }
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
           {runStatus === 'running' ? '运行中...' : '运行'}
@@ -338,7 +349,7 @@ export default function App() {
       {/* ── Footer ────────────────────────────────────────── */}
       <footer style={{
         height: 26,
-        borderTop: `1px solid ${tokens.borderDefault}`,
+        borderTop: `1px solid ${tokens.borderMuted}`,
         background: tokens.bgSurface,
         display: 'flex',
         alignItems: 'center',
@@ -351,7 +362,7 @@ export default function App() {
         </span>
         {workflowId && (
           <>
-            <div style={{ width: 3, height: 3, borderRadius: '50%', background: tokens.borderDefault }} />
+            <div style={{ width: 3, height: 3, borderRadius: '50%', background: tokens.borderMuted }} />
             <span style={{ fontSize: 10, color: tokens.textMuted }}>ID: {workflowId}</span>
           </>
         )}

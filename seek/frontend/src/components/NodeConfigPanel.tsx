@@ -95,10 +95,11 @@ interface NodeConfigPanelProps {
   onClose: () => void;
 }
 
+// Dark input style — inset shadow like Spotify
 const fieldStyle = {
   width: '100%' as const,
   fontSize: 12,
-  padding: '7px 10px',
+  padding: '8px 12px',
   border: `1px solid ${tokens.borderDefault}`,
   borderRadius: tokens.radiusMd,
   background: tokens.bgElevated,
@@ -106,29 +107,33 @@ const fieldStyle = {
   boxSizing: 'border-box' as const,
   transition: 'border-color 0.15s, box-shadow 0.15s',
   outline: 'none',
+  // Inset shadow combo like Spotify
+  boxShadow: `inset 0 1px 0 rgba(18,18,18,1), inset 0 0 0 1px rgba(124,124,124,0.5)`,
 };
 
 const labelStyle = {
   display: 'block' as const,
-  fontSize: 11,
-  fontWeight: 600,
+  fontSize: 10,
+  fontWeight: 700,
   color: tokens.textSecondary,
   marginBottom: 6,
-  letterSpacing: '0.02em',
+  letterSpacing: '1px',
+  textTransform: 'uppercase' as const,
 };
 
 export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProps) {
   if (!node) return null;
 
-  const colors = tokens.nodeColors[node.type as string];
-  const fields = NODE_CONFIG_FIELDS[node.type as string] ?? [];
+  const nodeType = (node.data?.nodeType as string) ?? '';
+  const colors = tokens.nodeColors[nodeType];
+  const fields = NODE_CONFIG_FIELDS[nodeType] ?? [];
   const data = (node.data ?? {}) as Record<string, unknown>;
 
   return (
     <aside style={{
-      width: 292,
+      width: 288,
       background: tokens.bgSurface,
-      borderLeft: `1px solid ${tokens.borderDefault}`,
+      borderLeft: `1px solid ${tokens.borderMuted}`,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
@@ -138,7 +143,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
       {/* Header */}
       <div style={{
         padding: `${tokens.sp2}px ${tokens.sp3}px`,
-        borderBottom: `1px solid ${tokens.borderDefault}`,
+        borderBottom: `1px solid ${tokens.borderMuted}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -147,37 +152,37 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
         <div style={{ display: 'flex', alignItems: 'center', gap: tokens.sp2 }}>
           {colors && (
             <div style={{
-              width: 10,
-              height: 10,
+              width: 9,
+              height: 9,
               borderRadius: '50%',
               background: colors.border,
-              boxShadow: `0 0 0 3px ${colors.shadow}`,
               flexShrink: 0,
             }} />
           )}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: colors?.text ?? tokens.textPrimary }}>
-              {node.type as string}
+            <div style={{ fontSize: 12, fontWeight: 700, color: colors?.text ?? tokens.textPrimary, letterSpacing: '0.3px' }}>
+              {nodeType}
             </div>
             <div style={{ fontSize: 10, color: tokens.textMuted, marginTop: 1 }}>
               节点 #{node.id}
             </div>
           </div>
         </div>
+        {/* Close button — circular, minimal */}
         <button
           onClick={onClose}
           style={{
-            width: 26,
-            height: 26,
-            borderRadius: tokens.radiusMd,
-            border: `1px solid ${tokens.borderDefault}`,
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            border: `1px solid ${tokens.borderMuted}`,
             background: 'transparent',
             color: tokens.textSecondary,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 16,
+            fontSize: 14,
             transition: 'background 0.15s, color 0.15s',
           }}
           onMouseEnter={(e) => {
@@ -223,7 +228,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
                 <select
                   value={(data[field.key] as string) ?? (field.defaultValue as string ?? '')}
                   onChange={(e) => onUpdate(node.id, { ...data, [field.key]: e.target.value })}
-                  style={fieldStyle}
+                  style={{ ...fieldStyle, cursor: 'pointer' }}
                 >
                   {field.options?.map((opt) => (
                     <option key={opt} value={opt}>{opt}</option>
@@ -242,7 +247,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
                       width: 36,
                       height: 20,
                       borderRadius: 10,
-                      background: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.borderDefault,
+                      background: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.bgElevated,
                       border: `1px solid ${((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? tokens.accent : tokens.borderDefault}`,
                       position: 'relative',
                       cursor: 'pointer',
@@ -254,12 +259,12 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
                       width: 14,
                       height: 14,
                       borderRadius: '50%',
-                      background: '#fff',
+                      background: '#ffffff',
                       position: 'absolute',
                       top: 2,
                       left: ((data[field.key] as boolean) ?? (field.defaultValue as boolean)) ? 18 : 2,
                       transition: 'left 0.2s',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
                     }} />
                   </div>
                   <span style={{ fontSize: 12, color: tokens.textSecondary }}>
@@ -300,7 +305,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
         justifyContent: 'space-between',
         background: tokens.bgElevated,
       }}>
-        <span style={{ fontSize: 10, color: tokens.textMuted }}>
+        <span style={{ fontSize: 10, color: tokens.textMuted, letterSpacing: '0.5px' }}>
           {fields.length > 0 ? `${fields.length} 个配置项` : '只读节点'}
         </span>
         <div style={{
@@ -308,7 +313,7 @@ export function NodeConfigPanel({ node, onUpdate, onClose }: NodeConfigPanelProp
           height: 6,
           borderRadius: '50%',
           background: tokens.success,
-          opacity: 0.7,
+          opacity: 0.8,
         }} />
       </div>
     </aside>

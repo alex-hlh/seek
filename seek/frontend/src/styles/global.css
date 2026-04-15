@@ -14,14 +14,103 @@ html, body, #root {
 ::-webkit-scrollbar-thumb:hover { background: #b8b0a5; }
 
 :focus-visible {
-  outline: 2px solid #c4704b;
+  outline: 2px solid #1ed760;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-::selection { background: #c4704b22; }
+::selection { background: #1ed76022; }
 
 input, textarea, select, button {
   font-family: inherit;
   font-size: 13px;
+}
+
+/* React Flow node styling */
+.react-flow__node {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(60,50,40,0.10) !important;
+  border: 1px solid !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 8px 12px !important;
+  min-width: 120px !important;
+}
+
+/* Node type backgrounds */
+.react-flow__node[data-type="起始URL"] {
+  background: #eaf4ed !important;
+  border-color: #3d8b55 !important;
+  color: #2d6e42 !important;
+}
+
+.react-flow__node[data-type="HTTP请求"] {
+  background: #eaf0f8 !important;
+  border-color: #3b6fa8 !important;
+  color: #295a85 !important;
+}
+
+.react-flow__node[data-type="API请求"] {
+  background: #eeecf8 !important;
+  border-color: #5f52c0 !important;
+  color: #4a40a0 !important;
+}
+
+.react-flow__node[data-type="浏览器执行"] {
+  background: #f5ecf8 !important;
+  border-color: #8f5bc0 !important;
+  color: #7347a0 !important;
+}
+
+.react-flow__node[data-type="循环"] {
+  background: #f8f3e8 !important;
+  border-color: #b8882a !important;
+  color: #9a6f20 !important;
+}
+
+.react-flow__node[data-type="条件分支"] {
+  background: #f8ece8 !important;
+  border-color: #b86c38 !important;
+  color: #9a5530 !important;
+}
+
+.react-flow__node[data-type="HTML解析"] {
+  background: #e8f6f5 !important;
+  border-color: #2a9898 !important;
+  color: #1f7a7a !important;
+}
+
+.react-flow__node[data-type="JSON解析"] {
+  background: #e8f2f8 !important;
+  border-color: #2a78b8 !important;
+  color: #1f6298 !important;
+}
+
+.react-flow__node[data-type="正则清洗"] {
+  background: #f2f0ed !important;
+  border-color: #7a7068 !important;
+  color: #5e564e !important;
+}
+
+.react-flow__node[data-type="字段映射"] {
+  background: #f8e8e8 !important;
+  border-color: #b85050 !important;
+  color: #983c3c !important;
+}
+
+.react-flow__node[data-type="保存到文件"] {
+  background: #f8eaf0 !important;
+  border-color: #b85098 !important;
+  color: #9a3c80 !important;
+}
+
+.react-flow__node[data-type="人机验证"] {
+  background: #f8ecf0 !important;
+  border-color: #b850b8 !important;
+  color: #983c98 !important;
+}
+
+/* Selected node highlight */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1ed760, 0 4px 12px rgba(60,50,40,0.15) !important;
 }

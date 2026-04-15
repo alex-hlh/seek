@@ -31,35 +31,34 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
     <aside style={{
       width: 220,
       background: tokens.bgSurface,
-      borderRight: `1px solid ${tokens.borderDefault}`,
+      borderRight: `1px solid ${tokens.borderMuted}`,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
       flexShrink: 0,
-      boxShadow: tokens.shadowSm,
     }}>
       {/* Header */}
       <div style={{
-        padding: `${tokens.sp3}px ${tokens.sp2}px`,
-        borderBottom: `1px solid ${tokens.borderDefault}`,
+        padding: `${tokens.sp2}px ${tokens.sp2}px`,
+        borderBottom: `1px solid ${tokens.borderMuted}`,
         display: 'flex',
         alignItems: 'center',
         gap: tokens.sp1,
       }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.accent} strokeWidth="2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={tokens.accent} strokeWidth="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
           <rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/>
           <rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: '1.6px',
+          textTransform: 'uppercase' as const,
           color: tokens.textSecondary,
         }}>
-          节点类型
+          节点
         </span>
       </div>
 
@@ -74,9 +73,9 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
               onDragStart={(e) => onDragStart(e, node.type)}
               style={{
                 margin: `2px ${tokens.sp1}px`,
-                padding: `${tokens.sp1 + 2}px ${tokens.sp2}px`,
+                padding: `${tokens.sp1 + 1}px ${tokens.sp2}px`,
                 borderRadius: tokens.radiusMd,
-                border: `1px solid ${colors?.border ?? tokens.borderDefault}40`,
+                border: `1px solid ${colors ? `${colors.border}40` : tokens.borderMuted}`,
                 background: tokens.bgElevated,
                 cursor: 'grab',
                 display: 'flex',
@@ -87,31 +86,30 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
               }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = `${colors?.border ?? tokens.borderDefault}90`;
+                el.style.borderColor = colors ? `${colors.border}80` : tokens.borderDefault;
                 el.style.background = tokens.bgHover;
-                el.style.boxShadow = colors ? `0 2px 8px ${colors.shadow}` : tokens.shadowSm;
+                el.style.boxShadow = colors ? `0 2px 12px ${colors.shadow}` : tokens.shadowSm;
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = `${colors?.border ?? tokens.borderDefault}40`;
+                el.style.borderColor = colors ? `${colors.border}40` : tokens.borderMuted;
                 el.style.background = tokens.bgElevated;
                 el.style.boxShadow = 'none';
               }}
             >
-              {/* Color dot */}
+              {/* Color dot — functional, not decorative */}
               <div style={{
-                width: 9,
-                height: 9,
+                width: 8,
+                height: 8,
                 borderRadius: '50%',
                 background: colors?.border ?? tokens.accent,
                 flexShrink: 0,
-                boxShadow: colors ? `0 0 0 2px ${colors.shadow}` : 'none',
               }} />
 
               {/* Text */}
               <div style={{ minWidth: 0 }}>
                 <div style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: colors?.text ?? tokens.textPrimary,
                   lineHeight: 1.3,
@@ -119,7 +117,7 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
                   {node.label}
                 </div>
                 <div style={{
-                  fontSize: 11,
+                  fontSize: 10,
                   color: tokens.textMuted,
                   marginTop: 1,
                   lineHeight: 1.3,
@@ -134,12 +132,12 @@ export function NodePalette({ onDragStart }: NodePaletteProps) {
 
       {/* Footer */}
       <div style={{
-        padding: `${tokens.sp1 + 2}px ${tokens.sp2}px`,
+        padding: `${tokens.sp1}px ${tokens.sp2}px`,
         borderTop: `1px solid ${tokens.borderMuted}`,
         fontSize: 10,
         color: tokens.textMuted,
         textAlign: 'center',
-        background: tokens.bgElevated,
+        letterSpacing: '0.5px',
       }}>
         拖拽到画布添加节点
       </div>
