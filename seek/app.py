@@ -26,6 +26,9 @@ from seek.src.config import WORKFLOWS_DIR, OUTPUTS_DIR, LOGS_DIR
 
 app = FastAPI(title="Seek Crawler")
 
+frontend_dist = Path(__file__).parent / "frontend" / "dist"
+app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+
 NODE_REGISTRY = {
     "起始URL": StartUrlNode,
     "HTTP请求": HttpRequestNode,
@@ -48,6 +51,11 @@ storage = WorkflowStorage(WORKFLOWS_DIR)
 async def root():
     dist_index = Path(__file__).parent / "frontend" / "dist" / "index.html"
     return FileResponse(dist_index)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("seek.app:app", host="127.0.0.1", port=8000, reload=True)
 
 
 @app.get("/api/workflows")
